@@ -36,8 +36,8 @@ Next, you'll need to edit the on_message method within the CbSocket class to sea
 
 ```python
 elif result['product_id'] == 'NEW-COIN-ID':
-    adaBook = self.coins.get('NEW-COIN-ID')
-    adaBook.set_dicts(result)
+    newCoinBook = self.coins.get('NEW-COIN-ID')
+    newCoinBook.set_dicts(result)
 ```
 
 Where "NEW-COIN-ID" is the new asset you want to track. Next, you'll need to add the new coin to the CbSocket dictionary in the same syntax as the rest:
