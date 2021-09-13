@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 # Usage
 
-Currently, this project is not in the best state to be reconfigured. However, if you desire, it can be done by first editing the subscribe.json and including the ticket in the "product_ids" field. 
+Currently, this project is not in the best state to be reconfigured. However, if you desire, it can be done by first editing the subscribe.json and including the ticker in the "product_ids" field. 
 
 Next, you'll need to edit the on_message method within the CbSocket class to search for a new coin following the similar syntax:
 
