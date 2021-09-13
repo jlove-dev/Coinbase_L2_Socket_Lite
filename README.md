@@ -49,7 +49,7 @@ self.coins = {
 }
 ```
 
-Finally, this project currently runs out of ```__main__``` and thus you'll need to create a new CbSocket object within that. Currently, an object called ```new``` is provided. You'll then need to request the ```bids``` and ```asks``` from the object, as shown in the script currently, and do with those DataFrames what you will.
+Finally, this project currently runs out of ```__main__``` and thus you'll need to create a new CbSocket object within that. Currently, an object called ```new``` is provided. You'll then need to request the ```bids``` and ```asks``` from the object, as shown in the script, and do with those DataFrames what you will.
 
 # Future
 
