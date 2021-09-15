@@ -30,17 +30,9 @@ pip install -r requirements.txt
 
 # Usage
 
-Currently, this project is not in the best state to be reconfigured. However, if you desire, it can be done by first editing the subscribe.json and including the ticker in the "product_ids" field. 
+Currently, this project is not in the best state to be reconfigured. However, if you desire, it can be done by first editing the subscribe.json and including the ticker in the "product_ids" field.
 
-Next, you'll need to edit the on_message method within the CbSocket class to search for a new coin following the similar syntax:
-
-```python
-elif result['product_id'] == 'NEW-COIN-ID':
-    newCoinBook = self.coins.get('NEW-COIN-ID')
-    newCoinBook.set_dicts(result)
-```
-
-Where "NEW-COIN-ID" is the new asset you want to track. Next, you'll need to add the new coin to the CbSocket dictionary in the same syntax as the rest:
+Next, you'll need to add the new coin to the CbSocket dictionary in the same syntax as the rest:
 
 ```python
 self.coins = {

@@ -73,21 +73,35 @@ class Coin:
     def get_df(self):
 
         # Request both the self.bids and self.asks dictionary be sorted
+        bids_df = self.get_bids()
+        asks_df = self.get_asks()
+
+        # Return both dataframes
+        return bids_df, asks_df
+
+    # Return a Pandas DataFrame of shape 500 with only the bids side of the object
+    def get_bids(self):
+
         bids = self.bid_sort()
-        asks = self.ask_sort()
 
         # Create the new bids dataframe, limited to 500 entries, reset the index and insert the index as a new column
         bids_df = pd.DataFrame.from_dict(data=dict(itertools.islice(bids.items(), 500)), orient='index')
         bids_df.reset_index(level=0, inplace=True)
         bids_df = bids_df.rename(columns={'index': 'price'})
 
+        return bids_df
+
+    # Return a Pandas DataFrame of shape 500 with only the asks side of the object
+    def get_asks(self):
+
+        asks = self.ask_sort()
+
         # Create the new asks dataframe, limited to 500 entries, reset the index and insert the index as a new column
         asks_df = pd.DataFrame.from_dict(data=dict(itertools.islice(asks.items(), 500)), orient='index')
         asks_df.reset_index(level=0, inplace=True)
         asks_df = asks_df.rename(columns={'index': 'price'})
 
-        # Return both dataframes
-        return bids_df, asks_df
+        return asks_df
 
     # Sort the self.asks dictionary into an OrderedDict
     def bid_sort(self):
@@ -98,6 +112,10 @@ class Coin:
     def ask_sort(self):
         ordered_dict = collections.OrderedDict(sorted(self.asks.items()))
         return ordered_dict
+
+    # Return the name of the object such as ETH-USD
+    def get_name(self):
+        return self.name
 
 
 # Websocket class which aggregates data from the level2 websocket on Coinbase API
@@ -135,47 +153,30 @@ class CbSocket:
         }
         '''
 
-    # Returns the selected coins bids/asks dataframes
+    # Returns the selected coins bids/asks dataframes, thus the request must be bids, asks = book.get_df()
     # Accepts an _id of type String which picks the correct object from the above dictionary of Coin objects
     def get_df(self, _id: str):
         book = self.coins.get(_id)
         return book.get_df()
+
+    # Request only the asks portion of the object
+    def get_asks(self, _id: str):
+        book = self.coins.get(_id)
+        return book.get_asks()
+
+    # Request only the bids portion of the object
+    def get_bids(self, _id: str):
+        book = self.coins.get(_id)
+        return book.get_bids()
 
     # Receives the messages from the websocket
     def on_message(self, ws, message):
         result = json.loads(message)  # Load the JSON message sent
 
         # Select the proper coin based on message type and pass the message to that object
-        if result['product_id'] == 'ETH-USD':
-            ethBook = self.coins.get('ETH-USD')
-            ethBook.set_dicts(result)
-        elif result['product_id'] == 'BTC-USD':
-            btcBook = self.coins.get('BTC-USD')
-            btcBook.set_dicts(result)
-        elif result['product_id'] == 'ADA-USD':
-            adaBook = self.coins.get('ADA-USD')
-            adaBook.set_dicts(result)
-        elif result['product_id'] == 'SOL-USD':
-            solBook = self.coins.get('SOL-USD')
-            solBook.set_dicts(result)
-        elif result['product_id'] == 'XTZ-USD':
-            xtzBook = self.coins.get('XTZ-USD')
-            xtzBook.set_dicts(result)
-        elif result['product_id'] == 'ALGO-USD':
-            algoBook = self.coins.get('ALGO-USD')
-            algoBook.set_dicts(result)
-        elif result['product_id'] == 'ATOM-USD':
-            atomBook = self.coins.get('ATOM-USD')
-            atomBook.set_dicts(result)
-        elif result['product_id'] == 'MATIC-USD':
-            maticBook = self.coins.get('MATIC-USD')
-            maticBook.set_dicts(result)
-        elif result['product_id'] == 'DOT-USD':
-            dotBook = self.coins.get('DOT-USD')
-            dotBook.set_dicts(result)
-        elif result['product_id'] == 'AAVE-USD':
-            aaveBook = self.coins.get('AAVE-USD')
-            aaveBook.set_dicts(result)
+        if result['product_id'] in self.coins:
+            book = self.coins.get(result['product_id'])
+            book.set_dicts(result)
         else:
             print('key not found')
 
