@@ -127,7 +127,8 @@ class CbSocket:
         # this socket utilizes lambda functions to assign the on_message and on_open to local object functions
         self.socket = websocket.WebSocketApp("wss://ws-feed.pro.coinbase.com",
                                              on_message=lambda ws, msg: self.on_message(ws, msg),
-                                             on_open=lambda ws: self.on_open(ws))
+                                             on_open=lambda ws: self.on_open(ws),
+                                             on_error=lambda ws, err: self.on_error(ws, err),)
         self.limit = limit
 
         # Dictionary which creates Coin objects for each message type which can be received
@@ -183,6 +184,9 @@ class CbSocket:
     # More information can be found here: https://docs.pro.coinbase.com/#subscribe
     def on_open(self, ws):
         ws.send(open('subscribe.json').read())
+
+    def on_error(self, ws, err):
+        print('Websocket error: ', err)
 
     # Run this websocket worker in a separate thread forever
     def run(self):
