@@ -15,8 +15,9 @@ import collections
 class Coin:
 
     # Class takes a name, such as ETH-USD, which is used to retrieve that coin's specific data
-    def __init__(self, name):
+    def __init__(self, name, limit):
         self.name = name
+        self.limit = limit
         self.bids = {}
         self.asks = {}
 
@@ -69,7 +70,7 @@ class Coin:
                 else:
                     self.asks[float(result['changes'][0][1])] = {'side': 'asks', 'size': float(result['changes'][0][2])}
 
-    # This function returns a pandas DataFrame of shape 500 with price, side and size as the columns
+    # This function returns a pandas DataFrame of shape 500 with price, side and size as the columns -
     def get_df(self):
 
         # Request both the self.bids and self.asks dictionary be sorted
@@ -85,7 +86,7 @@ class Coin:
         bids = self.bid_sort()
 
         # Create the new bids dataframe, limited to 500 entries, reset the index and insert the index as a new column
-        bids_df = pd.DataFrame.from_dict(data=dict(itertools.islice(bids.items(), 500)), orient='index')
+        bids_df = pd.DataFrame.from_dict(data=dict(itertools.islice(bids.items(), self.limit)), orient='index')
         bids_df.reset_index(level=0, inplace=True)
         bids_df = bids_df.rename(columns={'index': 'price'})
 
@@ -97,7 +98,7 @@ class Coin:
         asks = self.ask_sort()
 
         # Create the new asks dataframe, limited to 500 entries, reset the index and insert the index as a new column
-        asks_df = pd.DataFrame.from_dict(data=dict(itertools.islice(asks.items(), 500)), orient='index')
+        asks_df = pd.DataFrame.from_dict(data=dict(itertools.islice(asks.items(), self.limit)), orient='index')
         asks_df.reset_index(level=0, inplace=True)
         asks_df = asks_df.rename(columns={'index': 'price'})
 
@@ -128,21 +129,19 @@ class CbSocket:
                                              on_message=lambda ws, msg: self.on_message(ws, msg),
                                              on_open=lambda ws: self.on_open(ws))
         self.limit = limit
-        self.bids = {}
-        self.asks = {}
 
         # Dictionary which creates Coin objects for each message type which can be received
         self.coins = {
-            'ETH-USD': Coin('ETH-USD'),
-            'BTC-USD': Coin('BTC-USD'),
-            'ADA-USD': Coin('ADA-USD'),
-            'SOL-USD': Coin('SOL-USD'),
-            'XTZ-USD': Coin('XTZ-USD'),
-            'ALGO-USD': Coin('ALGO-USD'),
-            'ATOM-USD': Coin('ATOM-USD'),
-            'MATIC-USD': Coin('MATIC-USD'),
-            'DOT-USD': Coin('DOT-USD'),
-            'AAVE-USD': Coin('AAVE-USD')
+            'ETH-USD': Coin('ETH-USD', self.limit),
+            'BTC-USD': Coin('BTC-USD', self.limit),
+            'ADA-USD': Coin('ADA-USD', self.limit),
+            'SOL-USD': Coin('SOL-USD', self.limit),
+            'XTZ-USD': Coin('XTZ-USD', self.limit),
+            'ALGO-USD': Coin('ALGO-USD', self.limit),
+            'ATOM-USD': Coin('ATOM-USD', self.limit),
+            'MATIC-USD': Coin('MATIC-USD', self.limit),
+            'DOT-USD': Coin('DOT-USD', self.limit),
+            'AAVE-USD': Coin('AAVE-USD', self.limit)
         }
 
         '''
@@ -194,7 +193,7 @@ class CbSocket:
 # Main function
 if __name__ == "__main__":
 
-    new = CbSocket(10)
+    new = CbSocket(500)
     new.run()  # Runs the websocket worker in separate thread
 
     # Prints coin dataframes every second
